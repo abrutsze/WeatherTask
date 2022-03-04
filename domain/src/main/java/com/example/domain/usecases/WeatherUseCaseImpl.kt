@@ -19,8 +19,11 @@ class WeatherUseCaseImpl(
 
 	override suspend fun invoke(lat: Double, lon: Double) = channelFlow<ActionResult<WeatherInfo>> {
 		withContext(dispatcher.io) {
-			val weatherInfo = weatherDao.getWeather().toDomain()
-			send(ActionResult.Success(weatherInfo))
+			val weatherInfo = weatherDao.getWeather()
+			if(weatherInfo!=null){
+				send(ActionResult.Success(weatherInfo.toDomain()))
+			}
+
 			when (val apiData = weatherRepository.getWeatherData(lat, lon)) {
 				is ActionResult.Success -> {
 					val dto = apiData.data.toDomainEntity()
